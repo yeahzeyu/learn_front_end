@@ -1,4 +1,5 @@
 const net = require("net");
+const parser = require("./parser.js")
 
 class Request {
     constructor(options) {
@@ -87,7 +88,7 @@ class ResponseParser {
     }
     receive(string) {
         for (let i in string) {
-            //处理字符串，使用到了状态机
+            //处理字符串，使用到了状态机，charAt能支持中文
             this.receiveChar(string.charAt(i));
         }
     }
@@ -175,7 +176,8 @@ class TrunkedBodyParser {
             }
         } else if (this.current === this.READING_TRUNK) {
             this.content.push(char);
-            this.length--;
+            //this.length--;
+            this.length=this.length-this.getByte(char); //为了body中能支持出现中文，需解析一个字符占多少字节
             if (this.length === 0)
                 this.current = this.WAITING_NEW_LINE;
         } else if (this.current === this.WAITING_NEW_LINE) {
@@ -188,6 +190,35 @@ class TrunkedBodyParser {
             }
         }
     }
+    //为了body中能支持出现中文，需解析一个字符占多少字节
+	getByte(char) {
+		if(char.charCodeAt(0)<=0x007f) return 1;
+		if(char.charCodeAt(0)<=0x07ff) return 2;
+		if(char.charCodeAt(0)<=0xffff) return 3;
+		return 4;
+	}
+    /*
+        英文字母和中文汉字在不同字符集编码下的字节数:
+        英文字母：
+            字节数 : 1;编码：GB2312
+            字节数 : 1;编码：GBK
+            字节数 : 1;编码：GB18030
+            字节数 : 1;编码：ISO-8859-1
+            字节数 : 1;编码：UTF-8
+            字节数 : 4;编码：UTF-16
+            字节数 : 2;编码：UTF-16BE
+            字节数 : 2;编码：UTF-16LE
+
+        中文汉字：
+            字节数 : 2;编码：GB2312
+            字节数 : 2;编码：GBK
+            字节数 : 2;编码：GB18030
+            字节数 : 1;编码：ISO-8859-1
+            字节数 : 3;编码：UTF-8
+            字节数 : 4;编码：UTF-16
+            字节数 : 2;编码：UTF-16BE
+            字节数 : 2;编码：UTF-16LE
+    */
 }
 
 void async function () {
@@ -203,6 +234,8 @@ void async function () {
             name: "WoodyYip"
         }
     });
+    //拆分文件
     let response = await request.send();
-    console.log(response);
+    //如果是真正的浏览器，这里必须是异步分段地返回的，而不是返回整个body给parser
+    let dom = parser.parseHTML(response.body);
 }();
