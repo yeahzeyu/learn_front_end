@@ -159,6 +159,7 @@ class TrunkedBodyParser {
         this.current = this.WAITING_LENGTH;
     }
     receiveChar(char) {
+
         if (this.current === this.WAITING_LENGTH) {
             if (char === '\r') {
                 if (this.length === 0) {
@@ -166,7 +167,7 @@ class TrunkedBodyParser {
                 }
                 this.current = this.WAITING_LENGTH_LINE_END;
             } else {
-                //因为length是16进制的，把原来的值乘以16，然后最后1位，所以要用parseInt进行转换
+                //length是16进制的，边读取边将其转为10进制，方便下面的循环
                 this.length *= 16;
                 this.length += parseInt(char, 16);
             }
@@ -176,8 +177,8 @@ class TrunkedBodyParser {
             }
         } else if (this.current === this.READING_TRUNK) {
             this.content.push(char);
-            //this.length--;
-            this.length=this.length-this.getByte(char); //为了body中能支持出现中文，需解析一个字符占多少字节
+            //this.length--; //纯英文、数字的情况
+            this.length = this.length - this.getByte(char); //中文字符占用了多个字节
             if (this.length === 0)
                 this.current = this.WAITING_NEW_LINE;
         } else if (this.current === this.WAITING_NEW_LINE) {
@@ -191,12 +192,12 @@ class TrunkedBodyParser {
         }
     }
     //为了body中能支持出现中文，需解析一个字符占多少字节
-	getByte(char) {
-		if(char.charCodeAt(0)<=0x007f) return 1;
-		if(char.charCodeAt(0)<=0x07ff) return 2;
-		if(char.charCodeAt(0)<=0xffff) return 3;
-		return 4;
-	}
+    getByte(char) {
+        if (char.charCodeAt(0) <= 0x007f) return 1;
+        if (char.charCodeAt(0) <= 0x07ff) return 2;
+        if (char.charCodeAt(0) <= 0xffff) return 3;
+        return 4;
+    }
     /*
         英文字母和中文汉字在不同字符集编码下的字节数:
         英文字母：
