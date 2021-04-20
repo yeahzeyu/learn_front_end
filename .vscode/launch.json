@@ -9,9 +9,12 @@
       "request": "launch",
       "name": "Launch Program",
       "program": "${file}",
-      "autoAttachChildProcesses": true,
-      "stopOnEntry": false,
-      "sourceMaps": true
+      //"autoAttachChildProcesses": true,
+      //"stopOnEntry": false,
+      //"sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
     }
   ]
 }
