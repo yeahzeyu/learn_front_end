@@ -16,7 +16,7 @@ function data(c) {
         emit({
             type: "EOF"
         });
-        return ;
+        return;
     } else {
         emit({
             type: "text",
@@ -172,22 +172,132 @@ function tagName(c) {
     }
 }
 
+//<html attribute
 function beforeAttributeName(c) {
     //这里暂不处理属性
     if (c.match(/^[\t\n\f ]$/)) {
         return beforeAttributeName;
-    } else if (c == ">") {
-        return data;
+    } else if (c == '/' || c == ">" || c == EOF) {
+        return afterAttributeName(c);
     } else if (c == "=") {
-        return beforeAttributeName;
+        //报错
     } else {
+        currentAttribute = {
+            name: "",
+            value: ""
+        }
+        //console.log("currentAttribute", currentAttribute);
+        return attributeName(c);
+    }
+}
+
+//<div class="abc" ></div> <div class="abc" />
+function attributeName(c) {
+    //console.log(currentAttribute);
+    if (c.match(/^[\t\n\f ]$/) || c == "/" || c == ">" || c == EOF) {
+        return afterAttributeName(c);
+    } else if (c == "=") {
+        return beforeAttributeValue;
+    } else if (c == "\u0000") { //空格
+
+    } else if (c == "\"" || c == "'" || c == "<") {
+
+    } else {
+        currentAttribute.name += c;
+        return attributeName;
+    }
+}
+
+function beforeAttributeValue(c) {
+    if (c.match(/^[\t\n\f ]$/) || c == "/" || c == ">" || c == EOF) {
+        return beforeAttributeValue;
+    } else if (c == "\"") {
+        return doubleQuotedAttributeValue;
+    } else if (c == "\'") {
+        return singleQuotedAttributeValue;
+    } else if (c == ">") {
+        //return data
+    } else {
+        return UnquotedAttributeValue(c);
+    }
+}
+
+function doubleQuotedAttributeValue(c) {
+    if (c == "\"") {
+        currentToken[currentAttribute.name] = currentAttribute.value;
+        return afterQuotedAttributeValue;
+    } else if (c == "\u0000") { //空格
+
+    } else if (c == EOF) {
+
+    } else {
+        currentAttribute.value += c;
+        return doubleQuotedAttributeValue;
+    }
+}
+
+function singleQuotedAttributeValue(c) {
+    if (c == "\'") {
+        currentToken[currentAttribute.name] = currentAttribute.value;
+        return afterQuotedAttributeValue;
+    } else if (c == "\u0000") { //空格
+
+    } else if (c == EOF) {
+
+    } else {
+        currentAttribute.value += c;
+        return singleQuotedAttributeValue;
+    }
+}
+
+function UnquotedAttributeValue(c) {
+
+}
+
+function afterQuotedAttributeValue(c) {
+    if (c.match(/^[\t\n\f ]$/)) {
         return beforeAttributeName;
+    } else if (c == "/") {
+        return selfClosingStartTag;
+    } else if (c == ">") {
+        currentToken[currentAttribute.name] = currentAttribute.value;
+        emit(currentToken);
+        return data;
+    } else if (c == EOF) {
+
+    } else {
+        currentAttribute.value += c;
+        return afterQuotedAttributeValue;
+    }
+}
+
+function UnquotedAttributeValue() {
+    if (c.match(/^[\t\n\f ]$/)) {
+        currentToken[currentAttribute.name] = currentAttribute.value;
+        return beforeAttributeName;
+    } else if (c == "/") {
+        currentToken[currentAttribute.name] = currentAttribute.vlue;
+        return selfClosingStartTag;
+    } else if (c == ">") {
+        currentToken[currentAttribute.name] = currentAttribute.value;
+        emit(currentToken);
+        return data;
+    } else if (c == "\u0000") {
+
+    } else if (c == "\"" || c == "'" || c == "<" || c == "=" || c == "`") {
+
+    } else if (c == EOF) {
+
+    } else {
+        currentAttribute.value += c;
+        return UnquotedAttributeValue;
     }
 }
 
 function selfClosingStartTag(c) {
     if (c == '>') {
         currentToken.isSelfClosing = true;
+        emit(currentToken);
         return data;
     } else if (c == "EOF") {
         //报错
@@ -195,6 +305,30 @@ function selfClosingStartTag(c) {
         //报错
     }
 }
+
+function afterAttributeName(c) {
+    if (c.match(/^[\t\n\f ]$/)) {
+        return afterAttributeName;
+    } else if (c == "/") {
+        return selfClosingStartTag;
+    } else if (c == "=") {
+        return beforeAttributeValue;
+    } else if (c == ">") {
+        currentToken[currentAttribute.name] = currentAttribute.value;
+        emit(currentToken);
+        return data;
+    } else if (c == EOF) {
+
+    } else {
+        currentToken[currentAttribute.name] = currentAttribute.value;
+        currentAttribute = {
+            name: "",
+            value: ""
+        };
+        return attributeName(c);
+    }
+}
+
 
 module.exports.parseHTML = function parseHTML(html) {
     //因为HTML标准里把初始状态叫做data
@@ -221,3 +355,8 @@ module.exports.parseHTML = function parseHTML(html) {
 //第四课总结
 //在状态机中，除了状态迁移，我们还会加入业务逻辑
 //我们在标签结束状态提交标签token
+
+//第五课总结
+//属性值分为单引号、双引号、无引号三种写法，因此需要较多状态处理
+//处理属性的方式跟标签类似
+//属性结束时，我们把属性加到标签Token上
