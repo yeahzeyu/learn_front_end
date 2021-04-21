@@ -43,7 +43,7 @@ function emit(token) {
                 })
             }
         }
-        computeCss(element);
+        computeCSS(element);
         top.children.push(element);
         element.parent = top;
         if(!token.isSelfClosing) {

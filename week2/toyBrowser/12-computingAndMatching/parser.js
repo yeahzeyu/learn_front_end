@@ -16,11 +16,33 @@ let currentTextNode = null;
 let rules = [];
 function addCSSRules(text) {
     let ast = css.parse(text);
-    //console.log(JSON.stringify(ast, null, "    "));
+    console.log(JSON.stringify(ast, null, "    "));
     rules.push(...ast.stylesheet.rules);
 }
+//简单选择器：
+//.a class选择器
+//#a id选择器
+//div tagName选择器
+//复合选择器
+//div.a#a
 function match(element, selector) {
-
+    //假设遇到的都是简单选择器
+    //如果想把复合选择器写上，可用正则去拆分一下selector，然后加一点关系就可以了
+    if (!selector || !element.attributes) //用attributes来判断是不是文本节点，如果是文本节点，则不需要去看它到底跟seletor是否匹配
+        return;
+    if(selector.charAt(0) == "#") {
+        let attr = element.attributes.filter(attr => attr.name === "id")[0];
+        if(attr && attr.value === selector.replace('#', ''))
+            return true;
+    } else if(selector.charAt(0) == ".") {
+        //正常的情况下还需要对attribute用空格进行分割，得到多个class，只要其中有一个class存在于选择器中，我们就认为匹配上了
+        let attr = element.attributes.filter(attr => attr.name === "class")[0]
+        if(attr && attr.value === selector.replace('.', ''))
+            return true;
+    } else if(element.tagName === selector){
+        return true;
+    }
+    return false;
 }
 function computeCSS(element) {
     //为什么要获取父元素序列，因为今天的选择器大多数都是跟父元素相关的
