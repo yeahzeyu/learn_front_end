@@ -525,3 +525,6 @@ module.exports.parseHTML = function parseHTML(html) {
 //根据选择器的类型和元素属性，计算是否与当前元素匹配
 //这里仅仅实现了三种基本选择器，实际的浏览器中要处理复合选择器
 //作业（可选）：实现复合选择器，实现支持空格的class选择器
+
+//第十三总结
+//一旦选择匹配，就应用选择器到元素上，形成computedStyle
