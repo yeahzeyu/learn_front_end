@@ -43,8 +43,10 @@ http.createServer((request, response) => {
                     </style>
                 </head>
                 <body>
-                    <img id="myid"/>
-                    <img />
+                    <div>
+                        <img id="myid"/>
+                        <img />
+                    </div>
                 </body>
             </html>`
         );

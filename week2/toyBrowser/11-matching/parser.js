@@ -31,7 +31,7 @@ function computeCSS(element) {
     if (!element.computedStyle)
         element.computedStyle = {};
     for (let rule of rules) {
-        let selectorParts = rule.selector[0].split(" ").reverse(); //暂时不处理list形式的selector，同时为了和element的顺序一致，也做一遍reverse
+        let selectorParts = rule.selectors[0].split(" ").reverse(); //暂时不处理list形式的selector，同时为了和element的顺序一致，也做一遍reverse
         //正常情况下selectorParts里头的都是复合选择器，这里我们假设全都只是简单选择器
         if (!match(element, selectorParts[0])) //match函数用于验证element是否与选择器相匹配，如果最复杂选择器最右侧的简单选择都不匹配，则直接判定为该rule与element不匹配
             continue;

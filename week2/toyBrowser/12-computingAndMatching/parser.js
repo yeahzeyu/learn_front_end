@@ -16,7 +16,7 @@ let currentTextNode = null;
 let rules = [];
 function addCSSRules(text) {
     let ast = css.parse(text);
-    console.log(JSON.stringify(ast, null, "    "));
+    //console.log(JSON.stringify(ast, null, "    "));
     rules.push(...ast.stylesheet.rules);
 }
 //简单选择器：
@@ -53,7 +53,7 @@ function computeCSS(element) {
     if (!element.computedStyle)
         element.computedStyle = {};
     for (let rule of rules) {
-        let selectorParts = rule.selector[0].split(" ").reverse(); //暂时不处理list形式的selector，同时为了和element的顺序一致，也做一遍reverse
+        let selectorParts = rule.selectors[0].split(" ").reverse(); //暂时不处理list形式的selector，同时为了和element的顺序一致，也做一遍reverse
         //正常情况下selectorParts里头的都是复合选择器，这里我们假设全都只是简单选择器
         if (!match(element, selectorParts[0])) //match函数用于验证element是否与选择器相匹配，如果最复杂选择器最右侧的简单选择都不匹配，则直接判定为该rule与element不匹配
             continue;
@@ -511,3 +511,8 @@ module.exports.parseHTML = function parseHTML(html) {
 //第十一课总结
 //选择器也要从当前元素向外排列
 //复杂选择器拆成针对单个元素的选择器，用循环匹配父元素队列
+
+//第十二课总结
+//根据选择器的类型和元素属性，计算是否与当前元素匹配
+//这里仅仅实现了三种基本选择器，实际的浏览器中要处理复合选择器
+//作业（可选）：实现复合选择器，实现支持空格的class选择器
