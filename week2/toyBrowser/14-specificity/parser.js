@@ -2,6 +2,12 @@
 //html的的语法用一个栈就能完成分析，toy browser光用一个栈就能完成分析，而真正的浏览器还要家很多特殊的处理实现容错性
 //CSS设计会尽量保证所有选择器都会在DOM树构建到startTag的时候就完成与CSS Rule的匹配
 //选择器是层级结构的，最外层叫选择器列表，往里叫复杂选择器（是由一系列空格分隔的一系列复合选择器，根据亲代关系去选择元素的），而复合选择器是针对一个元素本身的属性和特诊的一个判断（由紧连的一系列简单的选择器构成），在本次的toy browser中，假定复杂选择器都是有简单选择构成了，暂不处理复合选择器的情况
+//选择器存在优先级specification、specificity特征、专一性、专指的程度，priority优先级
+//id转指的程度高于class，class专指的程度高于tagName
+//[0,0,0,0] [inline, id, class, tag] 四元组
+//如 div div #id 可表示为 [0, 1, 0, 2]
+//如 div #my #id 可表示为 [0, 2, 0, 0]
+//比较两个四元组的方式是不进位制，从高位往低位比较，如果比较出结果就停止，不再比较低位
 const css = require('css');
 const EOF = Symbol("EOF"); //EOF: End Of File，ES6 引入了一种新的原始数据类型 Symbol ，表示独一无二的值，最大的用法是用来定义对象的唯一属性名，也可以用来定义互不相等的一组常量。
 
@@ -44,6 +50,34 @@ function match(element, selector) {
     }
     return false;
 }
+
+function specificity(selector) {
+    var p = [0, 0, 0, 0];
+    //这里我们暂时不处理内联样式
+    var selectorParts = selector.split(" ");
+    //假设复杂选择器里头都是只有简单选择器（假设没有由多个简单选择器组成的复合选择器）
+    for(var part of selectorParts) {
+        if(part.charAt(0) == "#") {
+            p[1] += 1;
+        } else if(part.charAt(0) == ".") {
+            p[2] += 1;
+        } else {
+            p[3] += 1;
+        }
+    }
+    return p;
+}
+
+function compare(sp1, sp2) {
+    if(sp1[0] > sp2[0])
+        return sp1[0] - sp2[0];
+    if(sp1[1] > sp2[1])
+        return sp1[1] - sp2[1];
+    if(sp1[2] > sp2[2])
+        return sp1[2] - sp2[2];
+    return sp1[3] - sp2[3];
+}
+
 function computeCSS(element) {
     //为什么要获取父元素序列，因为今天的选择器大多数都是跟父元素相关的
     console.log(rules);
@@ -68,12 +102,20 @@ function computeCSS(element) {
                     //如果匹配到，我们要加入
                     console.log("Element", element, "matched rule", rule);
                     //把最后computed的属性生成，从CSS rules里面有declarations（声明的属性），一条条作用到元素的computed的属性上就可以了
+                    let sp = specificity(rule.selectors[0]);
                     let computedStyle = element.computedStyle;
                     for (let declaration of rule.declarations) {
                         if (!computedStyle[declaration.property])
                             computedStyle[declaration.property] = {};
-                        //computedStyle[declaration.property] = declaration.value;
-                        computedStyle[declaration.property].value = declaration.value;
+                        
+                        //此处添加专指程度的比较
+                        if(!computedStyle[declaration.property].specificity) {
+                            computedStyle[declaration.property].value = declaration.value;
+                            computedStyle[declaration.property].specificity = sp;   
+                        } else if(compare(computedStyle[declaration.property].specificity, sp) <= 0) {
+                            computedStyle[declaration.property].value = declaration.value;
+                            computedStyle[declaration.property].specificity = sp;  
+                        }
                     }
                     console.log('computedStyle', element.computedStyle);
                     break; //选择器已经匹配完，不需要继续检查父元素了
@@ -528,3 +570,8 @@ module.exports.parseHTML = function parseHTML(html) {
 
 //第十三课总结
 //一旦选择匹配，就应用选择器到元素上，形成computedStyle
+
+//第十四课总结
+//CSS规则根据specificity和后来优先规则覆盖
+//specificity是个四元组，越左边权重越高
+//一个CSS规则的specificity根据包含的简单选择器相加而成
