@@ -89,7 +89,7 @@ function emit(token) {
         for (let p in token) {
             if (p != "tagType" && p != "tagName") {
                 element.attributes.push({
-                    mame: p,
+                    name: p,
                     value: token[p]
                 })
             }
