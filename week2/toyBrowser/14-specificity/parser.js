@@ -31,6 +31,7 @@ function addCSSRules(text) {
 //div tagName选择器
 //复合选择器
 //div.a#a
+/*
 function match(element, selector) {
     //假设遇到的都是简单选择器
     //如果想把复合选择器写上，可用正则去拆分一下selector，然后加一点关系就可以了
@@ -50,19 +51,73 @@ function match(element, selector) {
     }
     return false;
 }
-
+*/
+//选做作业：实现复合选择器，实现支持空格的 Class 选择器
+function match(element, selector) {
+    if (!selector || !element.attributes) //用attributes来判断是不是文本节点，如果是文本节点，则不需要去看它到底跟seletor是否匹配
+        return;
+    //使用正则拆分selector，假设只有class、id、tagName这三种简单选择器组成的复合选择器，如果存在tagName肯定是在最前面的，后面可能是紧连的class选择器和id选择器，其中可以有多个class选择器，但只能有一个id选择器，复合选择器需要全部命中才算匹配上
+    let selectors = selector.match(/(([^\.\#])|([\.\#]))[^\.\#]*/g);
+    let matchNum = 0;
+    for (let selectorItem of selectors) {
+        if (selectorItem.charAt(0) == "#") {
+            let attr = element.attributes.filter(attr => attr.name === "id")[0];
+            if (attr && attr.value === selectorItem.replace('#', ''))
+                matchNum++;
+        } else if (selectorItem.charAt(0) == ".") {
+            //对attribute用空格进行分割，得到多个class，只要其中有一个class存在于选择器中，我们就认为匹配上了
+            let attr = element.attributes.filter(attr => attr.name === "class")[0]
+            if(attr) {
+                let classItems = attr.value.split(' ');
+                for(let classItem of classItems) {
+                    if (classItem && classItem === selectorItem.replace('.', '')) {
+                        matchNum++;
+                        break;
+                    }
+                }
+            }
+        } else if (element.tagName === selectorItem) {
+            matchNum++;
+        }
+    }
+    if(selectors.length === matchNum)
+        return true;
+    return false;
+}
+/*
 function specificity(selector) {
-    var p = [0, 0, 0, 0];
+    let p = [0, 0, 0, 0];
     //这里我们暂时不处理内联样式
-    var selectorParts = selector.split(" ");
+    let selectorParts = selector.split(" ");
     //假设复杂选择器里头都是只有简单选择器（假设没有由多个简单选择器组成的复合选择器）
-    for(var part of selectorParts) {
+    for(let part of selectorParts) {
         if(part.charAt(0) == "#") {
             p[1] += 1;
         } else if(part.charAt(0) == ".") {
             p[2] += 1;
         } else {
             p[3] += 1;
+        }
+    }
+    return p;
+}
+*/
+//选做作业：请同学们尝试在 selectorParts 里面去解析复合选择器
+function specificity(selector) {
+    let p = [0, 0, 0, 0];
+    //这里我们暂时不处理内联样式
+    let selectorParts = selector.split(" ");
+    //使用正则处理复合选择器
+    for(let part of selectorParts) {
+        let selectors = part.match(/(([^\.\#])|([\.\#]))[^\.\#]*/g);
+        for(let selectorItem of selectors) {
+            if(selectorItem.charAt(0) == "#") {
+                p[1] += 1;
+            } else if(selectorItem.charAt(0) == ".") {
+                p[2] += 1;
+            } else {
+                p[3] += 1;
+            }
         }
     }
     return p;
