@@ -8,6 +8,20 @@
 function getStyle(element) {
     if(!element.style)
         element.style = {};
+    //将一些属性，比如用px标识的属性，把它变成纯粹的数字，纯数字的再转换一下类型，因为我们写的代码写出来的都是字符串，另外是新加了style这个对象，用来存最后计算的属性，其实应该是用另外一个类似style的名字，只是这里style并没有被属性占掉，所以才为了方便用了style命名
+    //console.log("---style---");
+    for(let prop in element.computedStyle) {
+        //console.log(prop);
+        let p = element.computedStyle.value;
+        element.style[prop] = element.computedStyle[prop].value;
+        if(element.style[prop].toString().match(/px$/)) {
+            element.style[prop] = parseInt(element.style[prop]);
+        }
+        if(element.style[prop].toString().match(/^[0-9\.]+$/)) {
+            element.style[prop] = parseInt(element.style[prop])
+        }
+    }
+    return element.style;
 }
 
 function layout(element) {
@@ -16,17 +30,93 @@ function layout(element) {
     let elementStyle = getStyle(element);
     if(elementStyle.display !== 'flex')
         return;
+    //把文本节点都过滤掉
     let items = element.children.filter(e => e.type === 'element');
+
     items.sort(function(a,b) {
         return (a.order || 0) - (b.order || 0);
     });
+    
     let style = elementStyle;
+
     ['width', 'height'].forEach(size => {
         if(style[size] === 'auto' || style[size] === '') {
-
+            style[size] = null;
         }
     })
+
+    if(!style.flexDirection || style.flexDirection === 'auto')
+        style.flexDirection = 'row';
+    if(!style.alignItems || style.alignItems === 'auto')
+        style.alignItems = 'stretch';
+    if(!style.justifyContent || style.justifyContent === 'auto')
+        style.justifyContent = 'flex-start';
+    if(!style.flexWrap || style.flexWrap === 'auto')
+        style.flexWrap = 'nowrap';
+    if(!style.alignContent || style.alignContent === 'auto')
+        style.alignContent = 'stretch';
+
+    let mainSize, mainStart, mainEnd, mainSign, mainBase, 
+        crossSize, crossStart, crossEnd, crossSign, crossBase;
+    
+    if(style.flexDirection === 'row') { //主轴为X轴（方向是从左往右），交叉轴为y轴（方向是从上往下）的情况
+        mainSize = 'width';
+        mainStart = 'left';
+        mainEnd = 'right';
+        mainSign = +1;
+        mainBase = 0; //初始结点位置
+
+        crossSize = 'height';
+        crossStart = 'top';
+        crossEnd = 'bottom';
+    }
+    if(style.flexDirection === 'row-reverse') {
+        mainSize = 'width';
+        mainStart = 'right';
+        mainEnd = 'left';
+        mainSign = -1;
+        mainBase = style.width;
+
+        crossSize = 'height';
+        crossStart = 'top';
+        crossEnd = 'bottom';
+    }
+    if(style.flexDirection === 'column') {
+        mainSize = 'height';
+        mainStart = 'top';
+        mainEnd = 'bottom';
+        mainSign = +1;
+        mainBase = 0;
+
+        crossSize = 'Width';
+        crossStart = 'left';
+        crossEnd = 'right';
+    }
+    if(style.flexDirection === 'column-reverse') {
+        mainSize = 'height';
+        mainStart = 'bottom';
+        mainEnd = 'row';
+        mainSign = -1;
+        mainBase = style.height;
+
+        crossSize = 'width';
+        crossStart = 'left';
+        crossEnd = 'right';
+    }
+    if(style.flexWrap === 'wrap-reverse') {
+        let tmp = crossStart;
+        crossStart = crossEnd;
+        crossEnd = tmp;
+        crossSign = -1;
+    } else {
+        crossBase = 0;
+        crossSign = 1;
+    }
 }
+
+module.exports = layout;
+
+
 
 
 /*
