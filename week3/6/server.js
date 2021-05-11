@@ -35,8 +35,8 @@ http.createServer((request, response) => {
                 </head>
                 <body>
                     <div id="container">
-                        <div id="myid" />
-                        <div class="c1" />
+                        <div id="myid"></div>
+                        <div class="c1"></div>
                     </div>
                 </body>
             </html>`

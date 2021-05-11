@@ -374,4 +374,10 @@ module.exports = layout;
 根据每一行中最大元素尺寸计算行高
 根据行高flex-align和item-align，确定元素具体位置
 
+第五课：
+绘制需要依赖一个图形环境
+我们这里采用了npm包的images将完成CSS属性计算的DOM渲染到一张图片中
+绘制在一个viewport上进行
+与绘制相关的属性： background-color、border、background-image等
+
 */
