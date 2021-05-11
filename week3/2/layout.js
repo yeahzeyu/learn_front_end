@@ -88,7 +88,7 @@ function layout(element) {
         mainSign = +1;
         mainBase = 0;
 
-        crossSize = 'Width';
+        crossSize = 'width';
         crossStart = 'left';
         crossEnd = 'right';
     }
@@ -117,7 +117,7 @@ function layout(element) {
     if (!style[mainSize]) { //auto sizeing
         elementStyle[mainSize] = 0;
         for (let i = 0; i < items.length; i++) {
-            var item = items[i];
+            let item = items[i];
             if (itemStyle[mainSize] !== null || itemStyle[mainSize] !== (void 0))
                 elementStyle[mainSize] = elementStyle[mainSize] + itemStyle[mainSize];
         }

@@ -88,7 +88,7 @@ function layout(element) {
         mainSign = +1;
         mainBase = 0;
 
-        crossSize = 'Width';
+        crossSize = 'width';
         crossStart = 'left';
         crossEnd = 'right';
     }
@@ -117,7 +117,7 @@ function layout(element) {
     if (!style[mainSize]) { //auto sizeing
         elementStyle[mainSize] = 0;
         for (let i = 0; i < items.length; i++) {
-            var item = items[i];
+            let item = items[i];
             if (itemStyle[mainSize] !== null || itemStyle[mainSize] !== (void 0))
                 elementStyle[mainSize] = elementStyle[mainSize] + itemStyle[mainSize];
         }
@@ -168,9 +168,9 @@ function layout(element) {
     flexLine.mainSpace = mainSpace;
 
     if (style.flexWrap === 'nowrap' || isAutoMainSize) {
-        flexLine.crossSpace = (style[crossSize] != undefined) ? style[crossSize] : crossSpace;
+        flexLine.crossSpace = (style[crossSize] !== undefined) ? style[crossSize] : crossSpace;
     } else {
-        flexLine.crossBase = crossSpace;
+        flexLine.crossSpace = crossSpace;
     }
 
     if (mainSpace < 0) {
@@ -187,7 +187,7 @@ function layout(element) {
 
             itemStyle[mainSize] = itemStyle[mainSize] * scale;
             itemStyle[mainStart] = currentMain;
-            itemStyle[mainEnd] = itemStyle[mainStart] + mainSign + itemStyle[mainSize];
+            itemStyle[mainEnd] = itemStyle[mainStart] + mainSign * itemStyle[mainSize];
             currentMain = itemStyle[mainEnd];
         }
     } else {
@@ -219,25 +219,29 @@ function layout(element) {
                 }
             } else {
                 //There is *NO* flexible flex items. which means, justifyContent shoud work
-                if(style.justifyContent === 'flex-start') {
+                if (style.justifyContent === 'flex-start') {
                     let currentMain = mainBase;
                     let step = 0;
                 }
-                if(style.justifyContent === 'flex-end') {
+                if (style.justifyContent === 'flex-end') {
+                    let currentMain = mainSpace * mainSign + mainBase;
+                    let step = 0;
+                }
+                if (style.justifyContent === 'center') {
                     let currentMain = mainSpace / 2 * mainSign + mainBase;
                     let step = 0;
                 }
-                if(style.justifyContent === 'space-between') {
+                if (style.justifyContent === 'space-between') {
                     let step = mainSpace / (items.length - 1) * mainSign;
                     let currentMain = mainBase;
                 }
-                if(style.justifyContent === 'space-around') {
+                if (style.justifyContent === 'space-around') {
                     let step = mainSpace / items.length * mainSign;
                     let currentMain = step / 2 + mainBase;
                 }
-                for(let i = 0; i < items.length; i++) {
+                for (let i = 0; i < items.length; i++) {
                     let item = items[i];
-                    itemStyle[mainStart] = currentMain;
+                    itemStyle[mainStart, currentMain];
                     itemStyle[mainEnd] = itemStyle[mainStart] + mainSign * itemStyle[mainSize];
                     currentMain = itemStyle[mainEnd] + step;
                 }

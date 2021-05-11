@@ -1,6 +1,7 @@
 const images = require("images");
 const net = require("net");
 const parser = require("./parser.js");
+const render = require("./render.js");
 
 class Request {
     constructor(options) {
@@ -241,6 +242,11 @@ void async function () {
     //如果是真正的浏览器，这里必须是异步分段地返回的，而不是返回整个body给parser
     let dom = parser.parseHTML(response.body);
     console.log(dom);
+    let viewport = images(800, 600);
+    console.log(dom.children[0].children[3].children[1].children[1]);
+    //此处仅绘制单个元素，若想绘制多个元素，则需要递归地调用render
+    render(viewport, dom.children[0].children[3].children[1].children[1]);
+    viewport.save("viewport.jpg");
 }();
 
 //通过CSS计算生成一棵带CSS属性的DOM树

@@ -88,7 +88,7 @@ function layout(element) {
         mainSign = +1;
         mainBase = 0;
 
-        crossSize = 'Width';
+        crossSize = 'width';
         crossStart = 'left';
         crossEnd = 'right';
     }

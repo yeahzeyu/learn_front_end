@@ -478,10 +478,6 @@ function singleQuotedAttributeValue(c) {
     }
 }
 
-function UnquotedAttributeValue(c) {
-
-}
-
 function afterQuotedAttributeValue(c) {
     if (c.match(/^[\t\n\f ]$/)) {
         return beforeAttributeName;
@@ -499,7 +495,7 @@ function afterQuotedAttributeValue(c) {
     }
 }
 
-function UnquotedAttributeValue() {
+function UnquotedAttributeValue(c) {
     if (c.match(/^[\t\n\f ]$/)) {
         currentToken[currentAttribute.name] = currentAttribute.value;
         return beforeAttributeName;

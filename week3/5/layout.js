@@ -12,7 +12,7 @@ function getStyle(element) {
     //console.log("---style---");
     for (let prop in element.computedStyle) {
         //console.log(prop);
-        let p = element.computedStyle.value;
+        var p = element.computedStyle.value;
         element.style[prop] = element.computedStyle[prop].value;
         if (element.style[prop].toString().match(/px$/)) {
             element.style[prop] = parseInt(element.style[prop]);
@@ -27,17 +27,17 @@ function getStyle(element) {
 function layout(element) {
     if (!element.computedStyle)
         return;
-    let elementStyle = getStyle(element);
+    var elementStyle = getStyle(element);
     if (elementStyle.display !== 'flex')
         return;
     //把文本节点都过滤掉
-    let items = element.children.filter(e => e.type === 'element');
+    var items = element.children.filter(e => e.type === 'element');
 
     items.sort(function (a, b) {
         return (a.order || 0) - (b.order || 0);
     });
 
-    let style = elementStyle;
+    var style = elementStyle;
 
     ['width', 'height'].forEach(size => {
         if (style[size] === 'auto' || style[size] === '') {
@@ -56,7 +56,7 @@ function layout(element) {
     if (!style.alignContent || style.alignContent === 'auto')
         style.alignContent = 'stretch';
 
-    let mainSize, mainStart, mainEnd, mainSign, mainBase,
+    var mainSize, mainStart, mainEnd, mainSign, mainBase,
         crossSize, crossStart, crossEnd, crossSign, crossBase;
 
     if (style.flexDirection === 'row') { //主轴为X轴（方向是从左往右），交叉轴为y轴（方向是从上往下）的情况
@@ -116,7 +116,7 @@ function layout(element) {
         crossSign = 1;
     }
 
-    let isAutoMainSize = false;
+    var isAutoMainSize = false;
     if (!style[mainSize]) { //auto sizeing
         elementStyle[mainSize] = 0;
         for (let i = 0; i < items.length; i++) {
@@ -128,10 +128,10 @@ function layout(element) {
         //style.flexWrap = 'nowrap';
     }
 
-    let flexLine = [];
-    let flexLines = [flexLine];
-    let mainSpace = elementStyle[mainSize];
-    let crossSpace = 0;
+    var flexLine = [];
+    var flexLines = [flexLine];
+    var mainSpace = elementStyle[mainSize];
+    var crossSpace = 0;
 
     for (let i = 0; i < items.length; i++) {
         let item = items[i];
@@ -225,24 +225,24 @@ function layout(element) {
             } else {
                 //There is *NO* flexible flex items. which means, justifyContent shoud work
                 if (style.justifyContent === 'flex-start') {
-                    let currentMain = mainBase;
-                    let step = 0;
+                    var currentMain = mainBase;
+                    var step = 0;
                 }
                 if (style.justifyContent === 'flex-end') {
-                    let currentMain = mainSpace * mainSign + mainBase;
-                    let step = 0;
+                    var currentMain = mainSpace * mainSign + mainBase;
+                    var step = 0;
                 }
                 if (style.justifyContent === 'center') {
-                    let currentMain = mainSpace / 2 * mainSign + mainBase;
-                    let step = 0;
+                    var currentMain = mainSpace / 2 * mainSign + mainBase;
+                    var step = 0;
                 }
                 if (style.justifyContent === 'space-between') {
-                    let step = mainSpace / (items.length - 1) * mainSign;
-                    let currentMain = mainBase;
+                    var step = mainSpace / (items.length - 1) * mainSign;
+                    var currentMain = mainBase;
                 }
                 if (style.justifyContent === 'space-around') {
-                    let step = mainSpace / items.length * mainSign;
-                    let currentMain = step / 2 + mainBase;
+                    var step = mainSpace / items.length * mainSign;
+                    var currentMain = step / 2 + mainBase;
                 }
                 for (let i = 0; i < items.length; i++) {
                     let item = items[i];
@@ -256,7 +256,7 @@ function layout(element) {
 
     // compute the cross axis sizes
     // align-items, align-self
-    let crossSpace;
+    var crossSpace;
     if (!style[crossSize]) {
         crossSpace = 0;
         elementStyle[crossSize] = 0;
@@ -275,9 +275,9 @@ function layout(element) {
     } else {
         crossBase = 0;
     }
-    let lineSize = style[crossSize] / flexLines.length;
+    var lineSize = style[crossSize] / flexLines.length;
 
-    let step;
+    var step;
     if (style.alignContent === 'flex-start') {
         crossBase += 0;
         step = 0;
@@ -330,7 +330,7 @@ function layout(element) {
                 itemstyle[crossEnd] = itemStyle[crossStart] + crossSign * itemStyle[crossSize];
             }
 
-            if(align === 'stretch') {
+            if (align === 'stretch') {
                 itemStyle[crossStart] = crossBase;
                 itemStyle[crossEnd] = crossBase + crossSign * ((itemStyle[crossSize] !== null && itemStyle[crossSize] !== (void 0)) ? itemStyle[crossSize] : lineCrossSize);
                 itemStyle[crossSize] = crossSign * (itemStyle[crossEnd] - itemStyle[crossStart]);

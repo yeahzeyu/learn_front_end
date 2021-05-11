@@ -13,7 +13,7 @@ http.createServer((request, response) => {
         console.log("body:", body);
         response.writeHead(200, { 'Content-Type': 'text/html' });
         response.end(
-            `<html>
+            `<html maaa=a >
                 <head>
                     <style>
                         #container {
@@ -36,7 +36,7 @@ http.createServer((request, response) => {
                 <body>
                     <div id="container">
                         <div id="myid" />
-                        <div class="c1"/>
+                        <div class="c1" />
                     </div>
                 </body>
             </html>`
