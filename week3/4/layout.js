@@ -266,7 +266,7 @@ function layout(element) {
     } else {
         crossSpace = style[crossSize];
         for (let i = 0; i < flexLines.length; i++) {
-            crossSize -= flexLines[i].crossSpace;
+            crossSpace -= flexLines[i].crossSpace;
         }
     }
 
@@ -312,7 +312,7 @@ function layout(element) {
 
             let align = itemStyle.alignSelf || style.alignItems;
 
-            if (itemStyle[crossSize] === null)
+            if (item === null)
                 itemStyle[crossSize] = (align === 'stretch') ? lineCrossSize : 0;
 
             if (align === 'flex-start') {

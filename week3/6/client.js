@@ -241,9 +241,11 @@ void async function () {
     let response = await request.send();
     //如果是真正的浏览器，这里必须是异步分段地返回的，而不是返回整个body给parser
     let dom = parser.parseHTML(response.body);
+    console.log(dom);
     let viewport = images(800, 600);
+    console.log(dom);
     //此处仅绘制单个元素，若想绘制多个元素，则需要递归地调用render
-    render(viewport, dom.children[0].children[3].children[1].children[1]);
+    render(viewport, dom);
     viewport.save("viewport.jpg");
 }();
 
