@@ -1,7 +1,7 @@
 <pre>
     <script>
         class XRegExp {
-            constructor(scource, flag, root = "root") {
+            constructor(source, flag, root = "root") {
                 this.table = new Map();
                 this.regexp = new RegExp(this.compileRegExp(source, root, 0).source, flag);
                 console.log(this.regexp);
@@ -10,7 +10,7 @@
             compileRegExp(source, name, start) {
                 if (source[name] instanceof RegExp)
                     return {
-                        source: srouce[name].source,
+                        source: source[name].source,
                         length: 0
                     };
 
