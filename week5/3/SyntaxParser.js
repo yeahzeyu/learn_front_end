@@ -115,6 +115,8 @@ let hash = {
 function closure(state) {
     //趁着state还没有被污染之前，先把它存在哈希表
     //这里使用stringify作为哈希的key
+    console.log('state', state)
+    //if(state.$isEnd) return; //按理isEnd后就不需要对state再做closure了
     hash[JSON.stringify(state)] = state;
     let queue = [];
     for (let symbol in state) {
@@ -136,6 +138,7 @@ function closure(state) {
                     //需要把rule里面每个symbol的部分串成一串，所以上面注释掉的部分需要重新构造
                 }
                 let current = state;
+                console.log('current', current);
                 for (let part of rule) {
                     //由于有些rule之前存在共性的部分，需要剔除
                     if (!current[part]) {
@@ -158,7 +161,9 @@ function closure(state) {
         //递归调用closure，注意要对自身重复的规则进行处理，否则递归后会产生死循环
         //我们在状态机中只需要形成有环的状态迁移结构就可以了
         //即还是判断当前结点是否在之前就已经出现过，出现过就不需要再调用closure了
-        if(symbol.match(/^$/)) {
+        console.log('symbol：',symbol);
+        console.log(state[symbol]);
+        if(symbol.match(/^$/) || state[symbol].$isEnd) {
             return;
         }
         if (hash[JSON.stringify(state[symbol])])
