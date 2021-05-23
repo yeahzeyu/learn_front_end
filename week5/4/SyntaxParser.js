@@ -121,7 +121,7 @@ function closure(state) {
     let queue = [];
     for (let symbol in state) {
         //这里准备使用广度有优先搜素算法
-        if(symbol.match(/^$/)) {
+        if (symbol.match(/^$/)) {
             return;
         }
         queue.push(symbol);
@@ -151,7 +151,8 @@ function closure(state) {
                 }
                 //current.$isRuleEnd = true; //由于我们加上的isRuleEnd并不是代表symbol的，为了将其区分开的，在其前面增加标识符，例如$
                 current.$reduceType = symbol;
-                current.$reduceState = state;
+                //current.$reduceState = state;
+                current.$reduceLength = rule.length;
                 //以上也只是算了第一层的closure
                 //我们应该对每一个当前状态进行closure的处理
             }
@@ -163,9 +164,14 @@ function closure(state) {
         //递归调用closure，注意要对自身重复的规则进行处理，否则递归后会产生死循环
         //我们在状态机中只需要形成有环的状态迁移结构就可以了
         //即还是判断当前结点是否在之前就已经出现过，出现过就不需要再调用closure了
-        console.log('symbol：',symbol);
+        console.log('symbol：', symbol);
         console.log(state[symbol]);
-        if(symbol.match(/^$/) || state[symbol].$isEnd) {
+        /*
+        if (symbol.match(/^\$/) || state[symbol].$isEnd) {
+            return;
+        }
+        */
+        if (symbol.match(/^\$/)) {
             return;
         }
         if (hash[JSON.stringify(state[symbol])])
@@ -190,25 +196,51 @@ let source = `
 `;
 
 function parse(source) {
-    let state = start;
-    for (let symbol /* terminal symbols */ of scan(source)) {
+    //let state = start;
+    let stack = [start]; //把所有state的逻辑都改成用stack来实现，然后每次我们shift的时候
+    //做成子函数是为了方便管理状态，因为reduce和shift本质上是一个过程，而不是一个函数
+    function reduce() {
+        let state = stack[stack.length - 1];
+        if (state.$reduceType) {
+            //实际上被reduce的这些就是子元素
+            let children = [];
+            //state = state.$reduceState; //改成出栈的操作
+            for (let i = 0; i < state.$reduceLength; i++) {
+                children.push(stack.pop());
+            }
+
+            //create a non-terminal symbol and shift it
+            //移入一个non-terminal symbol
+            shift({
+                type: state.$reduceType,
+                children: children.reverse() //rule里面包含的children
+            })
+        } else {
+            throw new Error("unexpected token");
+        }
+    }
+    function shift(symbol) {
+        //每次取栈顶最新的作为state
+        let state = stack[stack.length - 1];
         if (symbol.type in state) {
             console.log(state);
-            state = state[symbol.type];
+            //每次shift的时候，都要将state[symbol.type]入栈
+            stack.push(state[symbol.type]);
+            //state = state[symbol.type]; //采用栈操作，把一路所有的状态都存起来，这里不需要再覆盖state的值
         } else {
-            /* non-terminal symbols */
+            /* reduce to non-terminal symbols */
             //要将得到的终结符合成一个非终结符，deduce
-            if(state.$reduceType) {
-                state = state.$reduceState;
-                let newSymbol = {
-                    type: state.$reduceType,
-                    children: []
-                }
-            }
-            debugger;
+            reduce(); //reduce完后，新的symbol还是没有办法放进去，所以还要再shift(symbol)一次
+            shift(symbol);
+            //debugger;
         }
-        console.log(symbol);
     }
+    for (let symbol /* terminal symbols */ of scan(source)) {
+        shift(symbol);   
+        //编译原理中，我们把for循环每一次放入一个token操作的术语叫shift
+    }
+    console.log(stack);
+    reduce();
 }
 
 parse(source);
