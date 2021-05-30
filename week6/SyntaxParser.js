@@ -195,7 +195,7 @@ let source = `
     var a;
 `;
 
-function parse(source) {
+export function parse(source) {
     //let state = start;
     let stack = [start]; //把所有state的逻辑都改成用stack来实现，然后每次我们shift的时候
     let symbolStack = [];
@@ -246,7 +246,6 @@ function parse(source) {
     reduce();
 }
 
-parse(source);
 
 
 /*
