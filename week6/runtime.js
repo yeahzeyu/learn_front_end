@@ -180,3 +180,27 @@ export class JSObject extends JSValue {
         return this.prototype;
     }
 }
+export class JSNull extends JSValue {
+    toNumber() {
+        return new JSNumber(0);
+    }
+    toStringg() {
+        return new JSString(["n", "u", "l", "l"]);
+    }
+    toBoolean() {
+        return new Boolean(false);
+    }
+}
+export class JSSymbol extends JSValue {
+    constructor(name) {
+        super();
+        this.name = name || "";
+    }
+}
+export  class CompletionRecord {
+    constructor(type, value, target) {
+        this.type = type || "normal";
+        this.value = value || new JSUndefined;
+        this.target = target || null;
+    }
+}
