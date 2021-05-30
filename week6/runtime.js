@@ -139,4 +139,32 @@ export class JSBoolean extends JSValue {
         else
             return new JSNumber(0);
     }
+    toString() {
+        if(this.value)
+            return new JSString(["t", "r", "u", "e"]);
+        else
+            return new JSString(["f", "a", "l", "s", "e"]);
+    }
+    toBoolean() {
+        return this;
+    }
+}
+
+export class JSObject extends JSValue {
+    constructor(proto) {
+        super();
+        this.properties = new Map();
+        this.prototype = proto || null;
+    }
+    set(name, value) {
+        this.setProperty(name, {
+            value: value,
+            enumerable: true,
+            configurable: true,
+            writeable: true
+        })
+    }
+    get(name) {
+        return this.getProperty(name).value;
+    }
 }
