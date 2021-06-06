@@ -2,7 +2,7 @@ import { scan } from "./LexParser.js"
 
 //尝试在老师第一节课及上周的abnf的基础示例上，尽量补全了syntaxParser，包括UnaryExpression、VariableDeclaration、带参数的FunctionDeclaration等
 let syntax = {
-    Program: [["Statement", "EOF"]], //需要通过递归的结构来表示可以重复，因为我们用的是一个或的关系，所以所有的外面都加一个中括号，加上EOF，使得program能接收一个end of file的标志用于终止
+    Program: [["StatementList", "EOF"]], //需要通过递归的结构来表示可以重复，因为我们用的是一个或的关系，所以所有的外面都加一个中括号，加上EOF，使得program能接收一个end of file的标志用于终止
     StatementList: [
         ["Statement"], //用数组来表示或的关系，可以是1个或多个
         ["StatementList", "Statement"],
@@ -132,10 +132,10 @@ function closure(state) {
             //终结符不会出现在syntaxtree里
             for (let rule of syntax[symbol]) {
                 if (!state[rule[0]]) {
-                    queue.push(rule[0]);
-                    //state[rule[0]] = true;
-                    //到上面state[rule[0]] = true这一步只是实现了接收一个状态，下一步是实现状态迁移
-                    //需要把rule里面每个symbol的部分串成一串，所以上面注释掉的部分需要重新构造
+                   queue.push(rule[0]);
+                   //state[rule[0]] = true;
+                   //到上面state[rule[0]] = true这一步只是实现了接收了一个初始状态，下一步是实现状态迁移
+                   //需要把rule里面每个symbol的部分串成一串，所以上面注释掉的部分需要重新构造
                 }
                 let current = state;
                 console.log('current', current);
@@ -218,7 +218,7 @@ parse(source);
 第二课：
 创建一个html去执行syntaxParser，第一步先是还没引入真正的输入，只是对语法树进行处理，目的是构造一个状态机，让它能够帮助我们去处理我们的语法分析
 做好的状态机有什么用呢？在后面的课程就将尝试将lexer产出的token流做一个初步的处理，把它变成terminal symbol
-因为我们在lexer的定义里面，很多地方的定义都比较粗糙，比如Punctuator，其实每一种Punctuator都是一种独立的symbol，这种情况我们需要把它单独拆分开来
+因为我们在lexer（词法分析器）的定义里面，很多地方的定义都比较粗糙，比如Punctuator，其实每一种Punctuator都是一种独立的symbol，这种情况我们需要把它单独拆分开来
 又比如keywords，现在的token名只有一个，实际上我们需要把它变成不同的terminal symbol的
 这个是词法跟语法定义之间的一个小小的差别
 于是我们需要加入一些硬逻辑来处理这种映射关系

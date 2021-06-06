@@ -10,23 +10,54 @@ let syntax = {
     Statement: [
         ["ExpressionStatement"],
         ["IFStatement"],
-        ["ForStatement"],
         ["WhileStatement"],
         ["VariableDeclaration"],
         ["FunctionDeclaration"],
-        ["ClassDeclaration"],
+        ["Block"],
         ["BreakStatement"],
-        ["ContinueStatement"],
-        ["ReturnStatement"],
-        ["ThrowStatement"],
-        ["TryStatement"],
-        ["Block"]
+        ["ContinueStatement"]
+        
+    ],
+    FunctionDeclaration: [
+        ["function", "Identifier", "(", ")", "{", "StatementList", "}"] //这里不能写成Program，虽然Program就是statementList组成的
+    ],
+    BreakStatement: [
+        ["break", ";"]
+    ],
+    ContinueStatement: [
+        ["continue", ";"]
+    ],
+    Block: [
+        ["{", "Statement", "}"],
+        ["{", "}"]
+    ],
+    WhileStatement: [
+        ["while", "(", "Expression", ")", "Statement"]
+    ],
+    IfStatement: [
+        ["if", "(", "Expression", ")", "Statement"]
+    ],
+    VariableDeclaration: [
+        //["var", "Identifier", ";"], //因为source那里变量声明后面写了分号
+        ["let", "Identifier", ";"]
     ],
     ExpressionStatement: [
         ["Expression", ";"]
     ],
     Expression: [
-        ["AdditiveExpression"]
+        ["AssignmentExpression"]
+    ],
+    AssignmentExpression: [
+        ["LeftHandSideExpression", "=", "LogicalORExpression"],
+        ["LogicalORExpression"]
+    ],
+    LogicalORExpression: [
+        ["LogicalORExpression"],
+        ["LogicalORExpression", "||", "LogicalANDExpression"]
+    ],
+    LogicalANDExpression: [
+        ["AdditiveExpression"],
+        ["LogicalANDExpression", "&&", "AdditiveExpression"]
     ],
     AdditiveExpression: [
         ["MultiplicativeExpression"],
@@ -34,15 +65,34 @@ let syntax = {
         ["AdditiveExpression", "-", "MultiplicativeExpression"]
     ],
     MultiplicativeExpression: [
-        ["UnaryExpression"],
+        ["LeftHandSideExpression"],
         ["MultiplicativeExpression", "*", "UnaryExpression"],
         ["MultiplicativeExpression", "/", "UnaryExpression"]
     ],
-    UnaryExpression: [
+    LeftHandSideExpression: [
+        ["CallExpression"],
+        ["NewExpression"]
+    ],
+    CallExpression: [
+        ["MemberExpression", "Arguments"],
+        ["CallExpression", "Arguments"]
+    ],
+    Arguments: [
+        ["(", ")"],
+        ["(", "ArgumentList", ")"]
+    ],
+    ArgumentList: [
+        ["AssignmentExpression"],
+        ["ArgumentList", ",", "AssignmentExpression"]
+    ],
+    NewExpression: [
+        ["MemberExpression"],
+        ["new", "NewExpression"]
+    ],
+    MemberExpression: [
         ["PrimaryExpression"],
-        ["+", "PrimaryExpression"],
-        ["-", "PrimaryExpression"],
-        ["typeof", "PrimaryExpression"],
+        ["PrimaryExpressoin", ".", "Identifier"],
+        ["PrimaryExpression", "[", "Expression", "]"]
     ],
     PrimaryExpression: [
         ["(", "Expression", ")"],
@@ -50,60 +100,25 @@ let syntax = {
         ["Identifier"]
     ],
     Literal: [
-        ["NumberLiteral"],
-        ["BooleanLiteral"],
+        ["NumericLiteral"],
         ["StringLiteral"],
-        ["NullLiteral"]
+        ["BooleanLiteral"],
+        ["NullLiteral"],
+        ["RegularExpressionLiteral"],
+        ["ObjectLiteral"],
+        ["ArrayLiteral"]
     ],
-    IfStatement: [
-        ["if", "(", "Expression", ")", "Statement"]
+    ObjectLiteral: [
+        ["{", "}"],
+        ["{", "PropertyList", "}"]
     ],
-    ForStatement: [
-        ["for", "(", "Statement", ";", "Statement", ";", "Statement", ")", "Statement"],
-        ["for", "(", "Identifier", "in", "Identifier", ")", "Statement"],
-        ["for", "(", "Identifier", "of", "Identifier", ")", "Statement"],
+    PropertyList: [
+        ["Property"],
+        ["PropertyList", ",", "Property"]
     ],
-    WhileStatement: [
-        ["while", "(", "Expression", ")", "Statement"]
-    ],
-    VariableDeclaration: [
-        ["var", "Identifier", ";"], //因为source那里变量声明后面写了分号
-        ["let", "Identifier", ";"]
-    ],
-    FunctionDeclaration: [
-        ["function", "Identifier", "(", ")", "{", "StatementList", "}"], //这里不能写成Program，虽然Program就是statementList组成的
-        ["function", "Identifier", "(", "ArgumentList", ")", "{", "StatementList", "}"],
-    ],
-    ArgumentList: [
-        ["Expression"],
-        ["ArgumentList", ",", "Expression"]
-    ],
-    FunctionDeclarationList: [
-        ["FunctionDeclaration"],
-        ["FunctionDeclarationList", "FunctionDeclaration"]
-    ],
-    ClassDeclaration: [
-        ["function", "Identifier", "{", "FunctionDeclarationList", "}"]
-    ],
-    BreakStatement: [
-        ["break", ";"],
-        ["break", "Identifier", ";"]
-    ],
-    ContinueStatement: [
-        ["continue", ";"],
-        ["continue", "Identifier", ";"]
-    ],
-    ReturnStatement: [
-        ["return", "ExpressionStatement"]
-    ],
-    ThrowStatement: [
-        ["return", "ExpressionStatement"]
-    ],
-    TryStatement: [
-        ["try", "{", "Statement", "}", "catch", "(", "Expression", ")", "{", "Statement", "}"]
-    ],
-    Block: [
-        ["{", "Statement", "}"]
+    Property: [
+        ["StringLiteral", ":", "AdditiveExpression"],
+        ["Identifier", ":", "AdditiveExpression"]
     ]
 }
 

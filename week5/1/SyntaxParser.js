@@ -1,6 +1,6 @@
 //尝试在老师第一节课及上周的abnf的基础示例上，尽量补全了syntaxParser，包括UnaryExpression、VariableDeclaration、带参数的FunctionDeclaration等
 let syntax = {
-    Program: [["Statement"]], //需要通过递归的结构来表示可以重复，因为我们用的是一个或的关系，所以所有的外面都加一个中括号
+    Program: [["StatementList"]], //需要通过递归的结构来表示可以重复，因为我们用的是一个或的关系，所以所有的外面都加一个中括号
     StatementList: [
         ["Statement"], //用数组来表示或的关系，可以是1个或多个
         ["StatementList", "Statement"], 

@@ -8,18 +8,15 @@
                 console.log('table', this.table);
             }
             compileRegExp(source, name, start) {
-                //如果已经是正则表达式，则直接返回
                 if (source[name] instanceof RegExp)
                     return {
                         source: source[name].source,
                         length: 0
                     };
-                //如果是需要替换的尖括号形式，则需要完成替换再返回
-                let length = 0;
-                let regexp = source[name].replace(/\<([^>]+)\>/g, (str, $1) => {
 
-                    console.log(str);
-                    console.log($1);
+                let length = 0;
+
+                let regexp = source[name].replace(/\<([^>]+)\>/g, (str, $1) => {
                     this.table.set(start + length, $1);
                     //this.table.set($1, start + length);
 
@@ -73,8 +70,7 @@
             //console.log(r);
             while(regexp.lastIndex < str.length) {
                 let r = regexp.exec(str);
-                console.log('********');
-                console.log('r', r);
+                console.log(r);
                 //document.write(r);
                 if(!r[0].length)
                     break;

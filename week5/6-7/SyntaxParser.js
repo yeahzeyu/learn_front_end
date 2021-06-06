@@ -2,7 +2,7 @@ import { scan } from "./LexParser.js"
 
 //尝试在老师第一节课及上周的abnf的基础示例上，尽量补全了syntaxParser，包括UnaryExpression、VariableDeclaration、带参数的FunctionDeclaration等
 let syntax = {
-    Program: [["Statement", "EOF"]], //需要通过递归的结构来表示可以重复，因为我们用的是一个或的关系，所以所有的外面都加一个中括号，加上EOF，使得program能接收一个end of file的标志用于终止
+    Program: [["StatementList", "EOF"]], //需要通过递归的结构来表示可以重复，因为我们用的是一个或的关系，所以所有的外面都加一个中括号，加上EOF，使得program能接收一个end of file的标志用于终止
     StatementList: [
         ["Statement"], //用数组来表示或的关系，可以是1个或多个
         ["StatementList", "Statement"],
@@ -137,7 +137,7 @@ function closure(state) {
                 if (!state[rule[0]]) {
                     queue.push(rule[0]);
                     //state[rule[0]] = true;
-                    //到上面state[rule[0]] = true这一步只是实现了接收一个状态，下一步是实现状态迁移
+                    //到上面state[rule[0]] = true这一步只是实现了接收了一个初始状态，下一步是实现状态迁移
                     //需要把rule里面每个symbol的部分串成一串，所以上面注释掉的部分需要重新构造
                 }
                 let current = state;
