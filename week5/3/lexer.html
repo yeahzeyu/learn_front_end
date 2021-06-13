@@ -72,7 +72,7 @@
                 let r = regexp.exec(str);
                 console.log(r);
                 //document.write(r);
-                if(!r[0].length)
+                if(!r[0].length) //防止死循环
                     break;
             }
         }

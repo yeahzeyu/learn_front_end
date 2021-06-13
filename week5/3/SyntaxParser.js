@@ -163,7 +163,7 @@ function closure(state) {
         //即还是判断当前结点是否在之前就已经出现过，出现过就不需要再调用closure了
         console.log('symbol：',symbol);
         console.log(state[symbol]);
-        if(symbol.match(/^$/) || state[symbol].$isEnd) {
+        if(symbol.match(/^$/)) {
             return;
         }
         if (hash[JSON.stringify(state[symbol])])
@@ -195,7 +195,7 @@ function parse(source) {
             state = state[symbol.type];
         } else {
             /* non-terminal symbols */
-            //要将得到的终结符合成一个非终结符，deduce
+            //要将得到的终结符合成一个非终结符reduce
             if(state.$reduceType) {
                 state = state.$reduceState;
             }

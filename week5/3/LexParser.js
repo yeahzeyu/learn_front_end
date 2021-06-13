@@ -82,6 +82,7 @@ export function* scan(str) {
         //由于我们扩展的正则表达式最终match出来的可能命中上面的多个表达式，因为我们这个也是分层次的，所以需要手工去做一下区分，看它是属于哪一个
         yield r;
         //这里需要把它包成我们想要的symbol
+        //因为exec是返回一个数组的
         if (r.Whitespace) {
             //空白则忽略
 
