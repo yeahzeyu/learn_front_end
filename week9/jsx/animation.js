@@ -33,12 +33,17 @@ export class Timeline {
     constructor() {
         //一般做变量的初始化，不会做太多的事情
         //下面这种写法，tick还是可以被外界调用到的，正确的方法是另写一个常量
+        this.state = "Inited";
         this[ANIMATIONS] = new Set();
         this[START_TIME] = new Map();
     }
     start() {
         //一个timeLine一般只要start了就可以了，不会有一个对应的stop，但是它可能有pause和resume
         //即启动tick，这里应把tick藏起来，变成一个私有的方法
+        if(this.state !== "Inited") {
+            return; //这里选择静默的fail，直接return掉，当然你也可以选择抛出错误，这个是API设计的风格
+        }
+        this.state = "started";
         let startTime = Date.now();
         this[PAUSE_TIME] = 0;
         this[TICK] = () => {
@@ -76,10 +81,18 @@ export class Timeline {
     pause() {
         //暂停，对我们的轮播组件carousel很重要，必须实现
         //需要记录暂停开始的时间，以及暂停截止的时间
+        if(this.state !== "started") {
+            return;
+        }
+        this.state = "paused";
         this[PAUSE_START] = Date.now();
         cancelAnimationFrame(this[TICK_HANDLER]);
     }
     resume() {
+        if(this.state !== "paused") {
+            return;
+        }
+        this.state = "started";
         this[PAUSE_TIME] += Date.now() - this[PAUSE_START];
         //恢复，对我们的轮播组件carousel很重要，必须实现
         this[TICK]();
@@ -88,6 +101,7 @@ export class Timeline {
         //重启，将时间线状态清空成初始干净的，可以用于复用
         console.log('reset');
         this.pause();
+        this.state = "inited";
         let startTime = Date.now(); //???
         this[PAUSE_TIME] = 0;
         this[ANIMATIONS] = new Set();
