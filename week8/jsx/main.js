@@ -2,10 +2,24 @@ import {Component, createElement} from "./framework.js"
 
 class Carousel extends Component {
     constructor() {
-        super();
+        super(); //不能在super里面调render，这是有问题的
+        this.attributes = Object.create(null); //创建一个空对象，我们尽量用比较正确的名字
+        // this.props = Object.create(null); //react这里是用props，因为它的attribute和property不分
+    }
+    setAttribute(name, value) {
+        this.attributes[name] = value;
     }
     render() {
-        return document.createElement("div");
+        this.root = document.createElement("div");
+        for(let record of this.attributes.src) {
+            let child = document.createElement('img');
+            child.src = record;
+            this.root.appendChild(child);
+        }
+        return this.root;
+    }
+    mountTo(parent) {
+        parent.appendChild(this.render()); //这样才能保证render一定在setAttribute后被调用
     }
 }
 
@@ -17,7 +31,7 @@ let d = [
 ]
 
 //document.body.appendChild(a);
-let a = <Carousel/>
+let a = <Carousel src={d}/>
 a.mountTo(document.body);
 //自定义的标签应该用什么办法使其像普通的html元素一样操作呢？
 //在最新版的DOM标准里面是有办法的，需要注册一下自定义标签/元素的名称和类型
