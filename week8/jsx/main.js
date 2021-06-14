@@ -1,73 +1,23 @@
-function createElement(type, attributes, ...children) {
-    let element;
-    if(typeof type === "string") //原生标签
-        element = new ElementWrapper(type);
-    else //type为class，需生成实例
-        element = new type;
-    for(let name in attributes) {
-        element.setAttribute(name, attributes[name]);
-    }
-    for(let child of children) {
-        if(typeof child === "string") {
-            child = new TextWrapper(child);
-        }
-        element.appendChild(child);
-    }
-    return element;
-}
+import {Component, createElement} from "./framework.js"
 
-class ElementWrapper {
-    constructor(type) {
-        this.root = document.createElement(type);
-    }
-    setAttribute(name, value) {
-        this.root.setAttribute(name, value);
-    }
-    appendChild(child) {
-        child.mountTo(this.root);
-    }
-    mountTo(parent) {
-        parent.appendChild(this.root);
-    }
-}
-
-class TextWrapper {
-    constructor(content) {
-        this.root = document.createTextNode(content);
-    }
-    setAttribute(name, value) {
-        this.root.setAttribute(name, value);
-    }
-    appendChild(child) {
-        child.mountTo(this.root);
-    }
-    mountTo(parent) {
-        parent.appendChild(this.root);
-    }
-}
-
-class Div {
+class Carousel extends Component {
     constructor() {
-        this.root = document.createElement("div");
+        super();
     }
-    setAttribute(name, value) {
-        this.root.setAttribute(name, value);
-    }
-    appendChild(child) {
-        child.mountTo(this.root);
-    }
-    mountTo(parent) {
-        parent.appendChild(this.root);
+    render() {
+        return document.createElement("div");
     }
 }
 
-let a = <div id="a">
-            <span>a</span>
-            <span>b</span>
-            <span>c</span>
-        </div>
+let d = [
+    "https://static001.geekbang.org/resource/image/bb/21/bb38fb7c1073eaee1755f81131f11d21.jpg",
+    "https://static001.geekbang.org/resource/image/1b/21/1b809d9a2bdf3ecc481322d7c9223c21.jpg",
+    "https://static001.geekbang.org/resource/image/b6/4f/b6d65b2f12646a9fd6b8cb2b020d754f.jpg",
+    "https://static001.geekbang.org/resource/image/73/e4/730ea9c393def7975deceb48b3eb6fe4.jpg"
+]
 
 //document.body.appendChild(a);
+let a = <Carousel/>
 a.mountTo(document.body);
 //自定义的标签应该用什么办法使其像普通的html元素一样操作呢？
 //在最新版的DOM标准里面是有办法的，需要注册一下自定义标签/元素的名称和类型
