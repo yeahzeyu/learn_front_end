@@ -54,18 +54,63 @@ element.addEventListener("touchcancel", event => {
     }
 })
 
-let start = (point) => {
-    console.log("start", point.clientX, point.clientY);
+let handler;
+let startX, startY;
+let isPan = false, isTap = true, isPress = false; //是否应该是全局的呢？
+//如果从触屏的角度考虑，会有多个触点的情况
+//如果从鼠标的角度考虑，会有左右键的区分
+//所以全局变量的形式是错误的
+//那么除了全局之外，剩下的只有一个选项，context
+
+let start = (point, context) => {
+    //console.log("start", point.clientX, point.clientY);
+    context.startX = point.clientX, context.startY = point.clientY;
+    context.isTap = true;
+    context.isPan = false;
+    context.isPress = false;
+    context.handler = setTimeout(() => {
+        context.isTap = false;
+        context.isPan = false;
+        context.isPress = true;
+        context.handler = null;
+        console.log("press");
+    }, 500)
 }
 
 let move = (point) => {
-    console.log("move", point.clientX, point.clientY);
+    let dx = point.clientX - startX;
+    let dy = point.clientY - startY;
+    if(dx ** 2 + dy ** 2 > 100) {
+        isTap = false;
+        isPan = true;
+        isPress = false;
+        console.log("panstart");
+        clearTimeout(handler);
+    }
+    if(isPan) {
+        console.log(dx, dy);
+        console.log("pan");
+    }
+    
+
+    //console.log("move", point.clientX, point.clientY);
 }
 
 let end = (point) => {
-    console.log("end", point.clientX, point.clientY);
+    if(isTap) {
+        console.log("tap");
+        clearTimeout(handler);
+    }
+    if(isPan) {
+        console.log("panEnd");
+    }
+    if(isPress) {
+        console.log("pressEnd");
+    }
+    //console.log("end", point.clientX, point.clientY);
 }
 
 let cancel = (point) => {
+    clearTimeout(handler);
     console.log("cancel", point.clientX, point.clientY);
 }
