@@ -48,14 +48,14 @@ element.addEventListener("mousedown", event => {
         end(event, context);
         contexts.delete("mouse" + (1 << event.button));
         if (event.buttons === 0) {
-            element.removeEventListener("mousemove", mousemove);
-            element.removeEventListener("mouseup", mouseup);
+            document.removeEventListener("mousemove", mousemove);
+            document.removeEventListener("mouseup", mouseup);
             isListeningMouse = false;
         }
     }
     if (!isListeningMouse) {
-        element.addEventListener("mousemove", mousemove);
-        element.addEventListener("mouseup", mouseup);
+        document.addEventListener("mousemove", mousemove);
+        document.addEventListener("mouseup", mouseup);
         isListeningMouse = true;
     }
 });
@@ -152,7 +152,8 @@ let move = (point, context) => {
 
 let end = (point, context) => {
     if (context.isTap) {
-        console.log("tap");
+        //console.log("tap");
+        dispatch("tap", {});
         clearTimeout(context.handler);
     }
     if (context.isPan) {
@@ -167,4 +168,17 @@ let end = (point, context) => {
 let cancel = (point, context) => {
     clearTimeout(context.handler);
     console.log("cancel", point.clientX, point.clientY);
+}
+
+//进一步实现事件派发，dom里面事件的派发是使用new event实现的
+
+function dispatch(type, properties) { //将原本的context, point先预处理成properties这样的kv结构后再传进来
+    //let event = new CustomEvent(type, {});
+    let event = new Event(type);
+    for(let name in properties) {
+        event[name] = properties[name];
+    }
+    //dispatch实际上是需要是一个元素的
+    element.dispatchEvent(event);
+    console.log(event);
 }
