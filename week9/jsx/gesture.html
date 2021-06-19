@@ -1,7 +1,25 @@
-<script src="./gesture.js"></script>
 <body oncontextmenu="event.preventDefault()"></body>
-<script>
+<script type="module">
+    import {enableGesture} from "./gesture.js";
+    enableGesture(document.documentElement)
     document.documentElement.addEventListener("tap", ()=>{
+        //在浏览器模拟移动端环境下，mousedown和touchstart像都会触发
+        //代码中已尝试解决这一问题，请老师审阅方案是否可行
         console.log("tap event trigger!");
+    })
+    document.documentElement.addEventListener("press", ()=>{
+        console.log("press event trigger!");
+    })
+    document.documentElement.addEventListener("pressend", ()=>{
+        console.log("pressend event trigger!");
+    })
+    document.documentElement.addEventListener("pan", ()=>{
+        console.log("pan event trigger!");
+    })
+    document.documentElement.addEventListener("panend", ()=>{
+        console.log("panend event trigger!");
+    })
+    document.documentElement.addEventListener("flick", ()=>{
+        console.log("flick event trigger!");
     })
 </script>
