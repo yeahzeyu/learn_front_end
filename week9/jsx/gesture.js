@@ -119,6 +119,11 @@ let isPan = false, isTap = true, isPress = false; //是否应该是全局的呢�
 let start = (point, context) => {
     //console.log("start", point.clientX, point.clientY);
     context.startX = point.clientX, context.startY = point.clientY;
+    context.points = [{
+        t: Date.now(),
+        x: point.clientX,
+        y: point.clientY
+    }];
     context.isTap = true;
     context.isPan = false;
     context.isPress = false;
@@ -145,8 +150,13 @@ let move = (point, context) => {
         console.log(dx, dy);
         console.log("pan");
     }
-
-
+    //在放进新的点之前会做一个过滤，让它只存取半秒内的速度，这样我们才能保正计算最新的速度
+    context.points = context.points.filter(point => Date.now() - point.t < 500);
+    context.points.push({
+        t: Date.now(),
+        x: point.clientX,
+        y: point.clientY
+    });
     //console.log("move", point.clientX, point.clientY);
 }
 
@@ -163,6 +173,30 @@ let end = (point, context) => {
         console.log("pressEnd");
     }
     //console.log("end", point.clientX, point.clientY);
+    context.points = context.points.filter(point => Date.now() - point.t < 500);
+    //由于最后停下来时可能会导致数组为空，因此在此处多push一个点进去
+    /*
+    context.points.push({
+        t: Date.now(),
+        x: point.clientX,
+        y: point.clientY
+    })
+    */
+    let d, v;
+    if (!context.points.length) {
+        v = 0;
+    } else {
+        d = Math.sqrt((point.clientX - context.points[0].x) ** 2 + (point.clientY - context.points[0].y) ** 2); //三角形公式 a**2 + b**2 = c**2
+        v = d / (Date.now() - context.points[0].t);
+    }
+    //根据经验，我们可以认为这个速度是大于1.5像素每毫秒就是比较快的了
+    console.log("v", v);
+    if(v > 1.5) {
+        console.log("flick");
+        context.isFlick = true;
+    } else {
+        context.isFlick = false;
+    }
 }
 
 let cancel = (point, context) => {
@@ -170,15 +204,21 @@ let cancel = (point, context) => {
     console.log("cancel", point.clientX, point.clientY);
 }
 
-//进一步实现事件派发，dom里面事件的派发是使用new event实现的
+//flick事件是以上事件中当中最为特殊的一个，因为它还需要判断速度
+//我们可以在move的时候得到当前这一次move的速度，但是这个并不能够帮助我们去处理，因为这个速度如果我们只判断两个点之间的速度，根据浏览器实现的不同，会有一个较大的误差，
+//所以我们对速度的判断，应该是取数个点的速度进行平均
+//这里会采用一个存储一段时间内的点的方式，来做平均速度的计算
 
+
+//进一步实现事件派发，dom里面事件的派发是使用new event实现的
 function dispatch(type, properties) { //将原本的context, point先预处理成properties这样的kv结构后再传进来
     //let event = new CustomEvent(type, {});
     let event = new Event(type);
-    for(let name in properties) {
+    for (let name in properties) {
         event[name] = properties[name];
     }
     //dispatch实际上是需要是一个元素的
     element.dispatchEvent(event);
     console.log(event);
 }
+//待补充，将剩余事件都实现派发，把事件加上必要的参数，我们所有需要的参数，基本都在context里面了
