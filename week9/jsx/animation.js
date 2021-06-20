@@ -33,14 +33,14 @@ export class Timeline {
     constructor() {
         //一般做变量的初始化，不会做太多的事情
         //下面这种写法，tick还是可以被外界调用到的，正确的方法是另写一个常量
-        this.state = "Inited";
+        this.state = "inited";
         this[ANIMATIONS] = new Set();
         this[START_TIME] = new Map();
     }
     start() {
         //一个timeLine一般只要start了就可以了，不会有一个对应的stop，但是它可能有pause和resume
         //即启动tick，这里应把tick藏起来，变成一个私有的方法
-        if(this.state !== "Inited") {
+        if(this.state !== "inited") {
             return; //这里选择静默的fail，直接return掉，当然你也可以选择抛出错误，这个是API设计的风格
         }
         this.state = "started";
