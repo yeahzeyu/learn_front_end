@@ -1,0 +1,17 @@
+{
+  "name": "publish-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./server.js",
+    "publish": "scp -r -P 8022 ./* winter@127.0.0.1:/home/winter/publish-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "querystring": "^0.2.0",
+    "unzipper": "^0.10.11"
+  }
+}
